@@ -1,102 +1,83 @@
 <template>
   <div class="cinema_body">
-    <ul>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-    </ul>
+    <Loading v-if="isLoading"/>
+    <scroller v-else>
+      <ul>
+        <li v-for="item in cinemaList" :key="item.id">
+          <div>
+            <span>{{ item.nm }}</span>
+            <span class="q"><span class="price">{{ item.sellPrice }}</span> 元起</span>
+          </div>
+          <div class="address">
+            <span>{{ item.addr }}</span>
+            <span>{{ item.distance }}</span>
+          </div>
+          <div class="card">
+            <div v-for="(num,key) in item.tag" v-if="num===1" :key="key" :class=" key | classCard ">{{ key | formatCard
+              }}
+            </div>
+          </div>
+        </li>
+      </ul>
+    </scroller>
   </div>
 </template>
 
 <script>
   export default {
-    name: "CiList"
+    name: "CiList",
+    data() {
+      return {
+        cinemaList: [],
+        isLoading: true,
+        prevCityId: -1
+      };
+    },
+    mounted() {
+      this.axios.get('/api/cinemaList?cityId=10').then((res) => {
+        let msg = res.data.msg;
+        if (msg === 'ok') {
+          this.cinemaList = res.data.data.cinemas;
+          this.isLoading = false;
+          // this.prevCityId = cityId
+        }
+      });
+    },
+    filters: {
+      formatCard(key) {
+        let card = [
+          {key: 'allowRefund', value: '改签'},
+          {key: 'endorse', value: '退'},
+          {key: 'sell', value: '折扣卡'},
+          {key: 'snack', value: '小吃'}
+        ];
+        for (let i = 0; i < card.length; i++) {
+          if (card[i].key === key) {
+            return card[i].value;
+          }
+        }
+        return '';
+      },
+      classCard(key) {
+        let card = [
+          {key: 'allowRefund', value: 'bl'},
+          {key: 'endorse', value: 'bl'},
+          {key: 'sell', value: 'or'},
+          {key: 'snack', value: 'or'}
+        ];
+        for (var i = 0; i < card.length; i++) {
+          if (card[i].key === key) {
+            return card[i].value;
+          }
+        }
+        return '';
+      }
+    }
   }
 </script>
 
 <style scoped>
-  #content .cinema_body {
+  .cinema_body {
     flex: 1;
     overflow: auto;
   }
@@ -128,8 +109,17 @@
     color: #666;
   }
 
+  .cinema_body .address span:nth-of-type(1) {
+    display: inline-block;
+    width: 250px;
+    margin-right: 22px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
   .cinema_body .address span:nth-of-type(2) {
-    float: right;
+
   }
 
   .cinema_body .card {

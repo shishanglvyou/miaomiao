@@ -6,6 +6,10 @@
   </div>
 </template>
 
-<style lang="scss">
-
+<style>
+  #app{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
 </style>
